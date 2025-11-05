@@ -1,0 +1,16 @@
+asl_lite/
+│
+├── manage.py
+├── requirements.txt
+├── Dockerfile
+├── render.yaml      👈 put it here
+│
+├── asl_lite/
+│   ├── settings.py
+│   ├── asgi.py
+│   ├── ...
+│
+└── translator/
+    ├── consumers.py
+    ├── models.py
+    └── ...
