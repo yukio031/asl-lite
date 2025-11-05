@@ -5,19 +5,19 @@ FROM python:3.10-bullseye
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-# ---------- System Dependencies ----------
+# ---------- Working Directory ----------
+WORKDIR /app
+
+# ---------- Copy Project Files ----------
+COPY . .
+
+# ---------- Install System Dependencies ----------
 RUN apt-get update && apt-get install -y \
     libgl1-mesa-glx \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# ---------- Working Directory ----------
-WORKDIR /app
-
-# ---------- Copy Project Files ----------
-COPY translator /app/
-
-# ---------- Install Dependencies ----------
+# ---------- Install Python Dependencies ----------
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
