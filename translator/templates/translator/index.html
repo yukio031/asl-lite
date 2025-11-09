@@ -59,21 +59,13 @@ video{border-radius:12px;border:2px solid var(--accent);max-width:100%;height:au
   </footer>
 </main>
 
-<!-- MediaPipe-based ASL Detection Script (full) -->
-<script type="module">
-/*
-  Requirements:
-   - Sends only `keypoints` to backend as JSON.
-   - Auto-selects ws:// or wss:// based on page protocol.
-   - Rate-limits sends to ~10 FPS (100 ms).
-   - Supports 2 hands (change maxNumHands if needed).
-*/
+<!-- ✅ Fixed Version: No ES Module imports -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
 
-// Import MediaPipe (ES module imports from CDN)
-import { Hands } from "https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js";
-import { Camera } from "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js";
-
-/* Theme toggle (persistent) */
+<script>
+/* ---------- Theme toggle ---------- */
 (function(){
   const root = document.documentElement;
   const btn = document.getElementById('theme-toggle');
@@ -86,80 +78,19 @@ import { Camera } from "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/cam
   });
 })();
 
-/* Elements */
+/* ---------- Elements ---------- */
 const video = document.getElementById('video');
 const translation = document.getElementById('translation');
 
-/* WebSocket: auto-switch to secure in prod (Render) */
+/* ---------- WebSocket setup ---------- */
 const socket = new WebSocket(
   (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host + '/ws/translate/'
 );
 
-socket.addEventListener('open', () => console.log('WebSocket opened:', socket.url));
-socket.addEventListener('close', () => console.log('WebSocket closed'));
+socket.onopen = () => console.log('✅ WebSocket connected');
+socket.onclose = () => console.log('🔌 WebSocket closed');
+socket.onerror = (e) => console.error('WebSocket error:', e);
 
-/* Rate-limiting settings */
-let lastSend = 0;               // ms
-const SEND_INTERVAL = 100;      // 100ms => ~10 FPS
-let currentKeypoints = [];
-
-/* Flatten helper */
-const flatten = (arr) => arr.flatMap(pt => [pt.x, pt.y, pt.z]);
-
-/* Extract keypoints: left and right hands only (x,y,z). If your model expects pose/face, we'll include later. */
-function extractKeypoints(results) {
-  const lh = results.leftHandLandmarks ? flatten(results.leftHandLandmarks) : [];
-  const rh = results.rightHandLandmarks ? flatten(results.rightHandLandmarks) : [];
-  // Always return same shape if you trained to expect both hands (e.g. 21*3 left + 21*3 right).
-  // If a hand is missing, the backend consumer should expect zeros for missing landmarks OR you can pad here.
-  return lh.concat(rh);
-}
-
-/* Send only at the set interval */
-function maybeSend() {
-  const now = performance.now();
-  if (now - lastSend >= SEND_INTERVAL && currentKeypoints.length > 0 && socket.readyState === WebSocket.OPEN) {
-    // Optionally, pad to fixed length if model expects fixed input size (e.g., 126 values for 21*3*2)
-    socket.send(JSON.stringify({ keypoints: currentKeypoints }));
-    lastSend = now;
-  }
-}
-
-/* Initialize MediaPipe Hands */
-const hands = new Hands({
-  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-});
-
-hands.setOptions({
-  maxNumHands: 2,
-  modelComplexity: 1,
-  minDetectionConfidence: 0.6,
-  minTrackingConfidence: 0.5
-});
-
-hands.onResults((results) => {
-  currentKeypoints = extractKeypoints(results);
-
-  // If you trained your model with fixed-length keypoints, ensure here to pad with zeros to that size.
-  // Example: expectedLen = 21*3*2 = 126
-  // if (currentKeypoints.length < expectedLen) {
-  //   currentKeypoints = currentKeypoints.concat(new Array(expectedLen - currentKeypoints.length).fill(0));
-  // }
-
-  maybeSend();
-});
-
-/* Start camera and feed frames to MediaPipe */
-const camera = new Camera(video, {
-  onFrame: async () => {
-    await hands.send({ image: video });
-  },
-  width: 640,
-  height: 480
-});
-camera.start();
-
-/* Receive translation messages from backend */
 socket.onmessage = (e) => {
   try {
     const data = JSON.parse(e.data);
@@ -168,6 +99,61 @@ socket.onmessage = (e) => {
     console.warn('Invalid WS message', err);
   }
 };
+
+/* ---------- Hand Tracking ---------- */
+const flatten = (arr) => arr.flatMap(pt => [pt.x, pt.y, pt.z]);
+
+function extractKeypoints(results) {
+  const lh = results.multiHandLandmarks && results.multiHandLandmarks[0] ? flatten(results.multiHandLandmarks[0]) : [];
+  const rh = results.multiHandLandmarks && results.multiHandLandmarks[1] ? flatten(results.multiHandLandmarks[1]) : [];
+  return lh.concat(rh);
+}
+
+let lastSend = 0;
+const SEND_INTERVAL = 100; // 10 FPS
+let currentKeypoints = [];
+
+function maybeSend() {
+  const now = performance.now();
+  if (now - lastSend >= SEND_INTERVAL && currentKeypoints.length > 0 && socket.readyState === WebSocket.OPEN) {
+    socket.send(JSON.stringify({ keypoints: currentKeypoints }));
+    lastSend = now;
+  }
+}
+
+/* ---------- Initialize MediaPipe Hands ---------- */
+const hands = new Hands({
+  locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`,
+});
+
+hands.setOptions({
+  maxNumHands: 2,
+  modelComplexity: 1,
+  minDetectionConfidence: 0.6,
+  minTrackingConfidence: 0.5,
+});
+
+hands.onResults((results) => {
+  currentKeypoints = extractKeypoints(results);
+
+  // Pad to fixed size if needed (21*3*2 = 126)
+  const expectedLen = 21 * 3 * 2;
+  if (currentKeypoints.length < expectedLen) {
+    currentKeypoints = currentKeypoints.concat(new Array(expectedLen - currentKeypoints.length).fill(0));
+  }
+
+  maybeSend();
+});
+
+/* ---------- Camera Setup ---------- */
+const camera = new Camera(video, {
+  onFrame: async () => {
+    await hands.send({ image: video });
+  },
+  width: 640,
+  height: 480,
+});
+camera.start();
 </script>
 </body>
 </html>
