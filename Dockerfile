@@ -1,31 +1,30 @@
 # ---------- Base Image ----------
-FROM python:3.10-bullseye
+FROM python:3.10-slim
 
-# ---------- Environment Settings ----------
+# ---------- Environment ----------
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
-
-# ---------- Working Directory ----------
 WORKDIR /app
 
-# ---------- Copy Project Files ----------
-COPY . .
-
-# ---------- Install System Dependencies ----------
-RUN apt-get update && apt-get install -y \
+# ---------- System dependencies ----------
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libgl1-mesa-glx \
     libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/*
+ && rm -rf /var/lib/apt/lists/*
 
-# ---------- Install Python Dependencies ----------
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# ---------- Copy requirements separately (for caching) ----------
+COPY requirements.txt .
 
-# ---------- Collect Static Files ----------
+RUN pip install --upgrade pip \
+ && pip install --no-cache-dir -r requirements.txt
+
+# ---------- Copy rest of project ----------
+COPY . .
+
+# ---------- Collect Static (optional) ----------
 RUN python manage.py collectstatic --noinput || true
 
-# ---------- Expose Port ----------
 EXPOSE 8000
 
-# ---------- Run Using Daphne (for ASGI/WebSocket Support) ----------
+# ---------- Run with Daphne ----------
 CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "asl_lite.asgi:application"]
