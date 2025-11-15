@@ -6,6 +6,9 @@ import mediapipe as mp
 from channels.generic.websocket import AsyncWebsocketConsumer
 from tensorflow.keras.models import load_model
 
+from tensorflow.keras.layers import LSTM, Dense
+import math
+from tensorflow.keras.models import Sequential
 mp_holistic = mp.solutions.holistic
 
 # Load model once
@@ -56,7 +59,16 @@ def draw_styled_landmarks(image, results):
 
 
 
-model = load_model(os.path.join(settings.BASE_DIR, 'translator', 'action.h5'))
+model = Sequential()
+model.add(LSTM(64, return_sequences=True, activation='relu', input_shape=(30,1662)))
+model.add(LSTM(128, return_sequences=True, activation='relu'))
+model.add(LSTM(64, return_sequences=False, activation='relu'))
+model.add(Dense(64, activation='relu'))
+model.add(Dense(32, activation='relu'))
+model.add(Dense(actions.shape[0], activation='softmax'))
+model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categorical_accuracy'])
+model.load_weights(os.path.join(settings.BASE_DIR, 'translator', 'action.h5'),by_name=True, skip_mismatch=True)
+
 model.summary()
 
 sequence = []
