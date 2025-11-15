@@ -6,7 +6,119 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>ASL Lite — Detector</title>
   <style>
-    /* Same style as your original code */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f0f0f0;
+      color: #333;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #333;
+      color: white;
+      padding: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .nav a {
+      color: white;
+      text-decoration: none;
+      padding: 0 15px;
+      font-size: 18px;
+    }
+
+    .nav a:hover {
+      text-decoration: underline;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+    }
+
+    .toggle {
+      background: transparent;
+      border: none;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background-color: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .video-box {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    #video {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .action-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .action-buttons button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .action-buttons button:hover {
+      background-color: #0056b3;
+    }
+
+    .translation, .translated {
+      font-size: 18px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      padding: 20px;
+      background-color: #333;
+      color: white;
+    }
+
+    footer a {
+      color: white;
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
