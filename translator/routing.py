@@ -1,7 +1,7 @@
 # routing.py
-from django.urls import re_path
+from django.urls import path
 from .consumers import ASLConsumer
 
 websocket_urlpatterns = [
-    re_path(r'ws/translate/$', ASLConsumer.as_asgi()),
+    path('ws/translate/', ASLConsumer.as_asgi()),  # Use path() instead of re_path()
 ]
