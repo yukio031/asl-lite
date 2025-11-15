@@ -16,6 +16,7 @@ requests==2.32.3
 pytz==2025.2
 sqlparse==0.5.3
 asgiref==3.10.0
+genai==2.1.0
 
 # --- Optional if you use translation/audio features ---
 deep-translator==1.11.4
@@ -26,6 +27,7 @@ python-dateutil==2.9.0.post0
 typing_extensions==4.15.0
 
 gunicorn==20.1.0
+
 
 
 
