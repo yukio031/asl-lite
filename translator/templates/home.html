@@ -4,7 +4,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>ASL Lite — Home</title>
+<title>TUNA — Home</title>
 <style>
 :root{
   --bg:#0f1724; --card:#0b1220; --text:#e6eef8; --muted:#9fb0c8; --accent:#6ee7b7;
@@ -29,7 +29,7 @@ html,body{
 .nav a{padding:8px 12px;border-radius:10px;text-decoration:none;color:var(--muted);font-weight:600}
 .nav a:hover{background:var(--glass);color:var(--text)}
 .container{max-width:1100px;margin:28px auto;padding:18px;}
-.hero{display:grid;grid-template-columns:1fr 420px;gap:24px;align-items:center}
+.hero{display:grid;grid-template-columns:1fr;gap:24px;align-items:center}
 .card{background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;padding:18px;box-shadow:0 6px 18px rgba(2,6,23,0.6);border:1px solid rgba(255,255,255,0.03)}
 .hero h1{margin:0 0 8px 0;font-size:2rem;line-height:1.02}
 .hero p{margin:0;color:var(--muted)}
@@ -58,7 +58,7 @@ html,body{
 </head>
 <body>
 <header class="header card">
-  <div class="brand"><div class="logo">A</div><div>ASL Lite</div></div>
+  <div class="brand"><div class="logo">T</div><div>TUNA</div></div>
   <nav class="nav" aria-label="Main Navigation">
     <a href="{% url 'home' %}">Home</a>
     <a href="{% url 'learn_asl' %}">Learn ASL</a>
@@ -74,7 +74,7 @@ html,body{
   <section class="hero">
     <div class="card">
       <h1>Learn and Translate American Sign Language — Fast</h1>
-      <p>ASL Lite is a lightweight web app that recognizes common ASL gestures and translates them into text. It's responsive, modern, and privacy-focused — your camera stream remains in your browser.</p>
+      <p>TUNA is a web app that recognizes common ASL gestures and translates them into text.</p>
       <div class="cta-row">
         <a class="button primary" href="{% url 'learn_asl' %}">Start Learning</a>
         <a class="button secondary" href="{% url 'asl' %}" id="open-detector">Open Detector</a>
@@ -86,22 +86,14 @@ html,body{
         </div>
         <div class="feature card">
           <h3>Mobile-friendly</h3>
-          <p class="muted">Designed to work smoothly on phones and tablets.</p>
+          <p class="muted">Designed to work on phones and computers.</p>
         </div>
         <div class="feature card">
-          <h3>Privacy First</h3>
-          <p class="muted">All processing happens locally in your browser (no uploads).</p>
+          <h3>Privacy-secured</h3>
+          <p class="muted">We do not save or record the camera detection.</p>
         </div>
       </div>
     </div>
-
-    <aside class="card" style="display:flex;flex-direction:column;gap:12px;align-items:stretch">
-      <h3 style="margin:0">Live Detector</h3>
-      <p style="margin:0;color:var(--muted)">Open the detector to use your webcam. The detector UI will preserve your existing ASL scripts.</p>
-      <div id="detector-area" style="min-height:240px;display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;border-radius:10px;background:linear-gradient(180deg,rgba(255,255,255,0.015),transparent);">
-        <button class="button primary" id="detector-open-btn">Open Detector</button>
-      </div>
-    </aside>
   </section>
 
   <section class="card" style="margin-top:18px">
@@ -109,12 +101,12 @@ html,body{
     <ul style="margin:8px 0 0 18px;color:var(--muted)">
       <li>Ensure good lighting for better detection accuracy.</li>
       <li>Hold your hand steady and face the camera.</li>
-      <li>Use a plain background when possible for clearer results.</li>
+      <li>Make sure that the upper body is inside the frame.</li>
     </ul>
   </section>
 
   <footer class="footer card">
-    <div>© ASL Lite — Built with care. • <span class="badge">Privacy-friendly</span></div>
+    <div>© TUNA — We care. • <span class="badge">Undergrad Thesis</span></div>
   </footer>
 </main>
 
