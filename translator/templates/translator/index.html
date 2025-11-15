@@ -82,7 +82,7 @@ video{border-radius:12px;border:2px solid var(--accent);max-width:100%;height:au
 // ASL Detection Logic
 const video = document.getElementById('video');
 const translation = document.getElementById('translation');
-const socket = new WebSocket('ws://localhost:8000/ws/translate/');
+const socket = new WebSocket('wss://asl-lite-test.onrender.com/ws/translate/');
 
 navigator.mediaDevices.getUserMedia({ video: true })
   .then(stream => {
