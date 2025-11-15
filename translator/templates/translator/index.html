@@ -37,25 +37,6 @@ video{border-radius:12px;border:2px solid var(--accent);max-width:100%;height:au
 @media(max-width:900px){.nav{display:none}}
 .controls{display:flex;gap:8px;align-items:center}
 .toggle{padding:8px;border-radius:10px;background:var(--glass);cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
-.action-buttons{
-  display:flex;
-  gap:10px;
-  margin-top:12px;
-  flex-wrap:wrap;
-  justify-content:center;
-}
-.action-buttons button{
-  padding:10px 14px;
-  border-radius:10px;
-  background:var(--accent);
-  border:none;
-  color:var(--bg);
-  font-weight:600;
-  cursor:pointer;
-}
-.action-buttons button:hover{
-  opacity:0.85;
-}
 </style>
 </head>
 <body>
@@ -77,14 +58,6 @@ video{border-radius:12px;border:2px solid var(--accent);max-width:100%;height:au
     <h1>ASL Translator</h1>
     <video id="video" autoplay playsinline style="transform: scaleX(-1);" width="640" height="480"></video>
     <p id="translation" class="translation">Translation: </p>
-    <div class="action-buttons">
-      <button id="btn-en">Translate to English</button>
-      <button id="btn-tl">Translate to Tagalog</button>
-      <button id="btn-tts">Text to Speech</button>
-      <button id="btn-backspace">Backspace</button>
-    </div>
-
-    <p id="translated" class="translated">Translated: </p>
   </div>
 
   <footer class="footer card">
