@@ -46,9 +46,12 @@ INSTALLED_APPS = [
 ASGI_APPLICATION = 'asl_lite.asgi.application'
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    }
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [(os.getenv('REDIS_HOST'), os.getenv('REDIS_PORT'))],  # use Render's Redis URL
+        },
+    },
 }
 
 MIDDLEWARE = [
