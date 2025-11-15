@@ -159,7 +159,7 @@
   <script>
     // WebSocket setup
     const isLocal = window.location.hostname === 'localhost';  // Check if we're running locally
-    const socketUrl = isLocal ? 'ws://localhost:8000/ws/translate/' : 'wss://your-app-name.onrender.com/ws/translate/';
+    const socketUrl = isLocal ? 'ws://localhost:8000/ws/translate/' : 'wss://asl-lite-test.onrender.com/ws/translate/';
     const socket = new WebSocket(socketUrl);
 
     // ASL Detection Logic and Button Actions
