@@ -6,6 +6,9 @@ import mediapipe as mp
 from channels.generic.websocket import AsyncWebsocketConsumer
 from tensorflow.keras.models import load_model
 
+import asyncio
+from google import genai
+
 from tensorflow.keras.layers import LSTM, Dense
 import math
 from tensorflow.keras.models import Sequential
@@ -70,7 +73,6 @@ model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categ
 model.load_weights(os.path.join(settings.BASE_DIR, 'translator', 'action.h5'),by_name=True, skip_mismatch=True)
 
 model.summary()
-
 sequence = []
 sentence = []
 predictions = []
@@ -86,6 +88,8 @@ def extract_keypoints(results):
 class ASLConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
+        global sentence
+
         self.holistic = mp_holistic.Holistic(min_detection_confidence=0.3, min_tracking_confidence=0.3)
 
     async def disconnect(self, close_code):
@@ -93,42 +97,93 @@ class ASLConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
-        image_data = base64.b64decode(data['image'].split(',')[1])
-        nparr = np.frombuffer(image_data, np.uint8)
-        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        msg_type = data.get("type")
+        payload = data.get("data")
+        client = genai.Client(api_key="AIzaSyBP6TAF27D-bIC1Fgg3UdvIlVrbDow_HkQ")
 
-        os.makedirs('output_folder', exist_ok=True)
-        global numm
+        sent = " ".join(sentence)
+
+        if payload == "english":
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-lite",
+                contents="Translate these ASL Words into proper English. No explanation needed: " + sent
+            )
+
+            translated_text = response.text  # <-- correct way to extract
+
+            await self.send(text_data=json.dumps({
+                "type": "translated",
+                "text": translated_text
+            }))
+
+            await asyncio.sleep(0.1)
 
 
-        numm = numm + 1
-        image_rgb, results = mediapipe_detection(frame, self.holistic)
-        print(results)
+        if payload == "X":
+            if sentence:  # prevent pop() on empty list
+                sentence.pop()
 
-        draw_styled_landmarks(image_rgb, results)
+            await self.send(text_data=json.dumps({
+                "type": "translation_update",
+                "translation": " ".join(sentence)
+            }))
 
-        keypoints = extract_keypoints(results)
-        global sequence, sentence, predictions
-        sequence.append(keypoints)
-        sequence = sequence[-30:]
+            await asyncio.sleep(0.1)
 
-        print(len(sequence))
-        if len(sequence) == 30:
-            res = model.predict(np.expand_dims(sequence, axis=0))[0]
-            print(actions[np.argmax(res)])
-            predictions.append(np.argmax(res))
-            if np.unique(predictions[-10:])[0] == np.argmax(res):
-                if res[np.argmax(res)] > threshold:
+        if payload == "tagalog":
+            response = client.models.generate_content(
+                model="gemini-2.0-flash-lite",
+                contents=f"Translate these ASL words into proper Tagalog sentence. No explanation needed:"+sent
+            )
 
-                    if len(sentence) > 0:
-                        if actions[np.argmax(res)] != sentence[-1]:
-                            if (actions[np.argmax(res)]!='whitespace'):
+            translated_text = response.text  # EXTRACT CORRECT TEXT
+
+            await self.send(text_data=json.dumps({
+                "type": "translated",
+                "text": translated_text
+            }))
+
+            await asyncio.sleep(0.1)
+
+        if(msg_type == "image"):
+            image_data = base64.b64decode(data['image'].split(',')[1])
+            nparr = np.frombuffer(image_data, np.uint8)
+            frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+            os.makedirs('output_folder', exist_ok=True)
+            global numm
+
+
+            numm = numm + 1
+            image_rgb, results = mediapipe_detection(frame, self.holistic)
+            print(results)
+
+            draw_styled_landmarks(image_rgb, results)
+
+            keypoints = extract_keypoints(results)
+            global sequence, predictions
+            sequence.append(keypoints)
+            sequence = sequence[-30:]
+
+            print(len(sequence))
+            if len(sequence) == 30:
+                res = model.predict(np.expand_dims(sequence, axis=0))[0]
+                print(actions[np.argmax(res)])
+                predictions.append(np.argmax(res))
+                if np.unique(predictions[-10:])[0] == np.argmax(res):
+                    if res[np.argmax(res)] > threshold:
+
+                        if len(sentence) > 0:
+                            if actions[np.argmax(res)] != sentence[-1]:
+                                if (actions[np.argmax(res)]!='whitespace'):
+                                    sentence.append(actions[np.argmax(res)])
+                        else:
+                            if (actions[np.argmax(res)] != 'whitespace'):
                                 sentence.append(actions[np.argmax(res)])
-                    else:
-                        if (actions[np.argmax(res)] != 'whitespace'):
-                            sentence.append(actions[np.argmax(res)])
 
 
-        await self.send(text_data=json.dumps({
-            'translation': ' '.join(sentence)
-        }))
+            await self.send(text_data=json.dumps({
+                'translation': ' '.join(sentence)
+            }))
+
+            await asyncio.sleep(0.1)
