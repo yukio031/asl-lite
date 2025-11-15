@@ -31,6 +31,25 @@ video{border-radius:12px;border:2px solid var(--accent);max-width:100%;height:au
 @media(max-width:900px){.nav{display:none}}
 .controls{display:flex;gap:8px;align-items:center}
 .toggle{padding:8px;border-radius:10px;background:var(--glass);cursor:pointer;border:1px solid rgba(255,255,255,0.03)}
+.action-buttons{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+.action-buttons button{
+  padding:10px 14px;
+  border-radius:10px;
+  background:var(--accent);
+  border:none;
+  color:var(--bg);
+  font-weight:600;
+  cursor:pointer;
+}
+.action-buttons button:hover{
+  opacity:0.85;
+}
 </style>
 </head>
 <body>
