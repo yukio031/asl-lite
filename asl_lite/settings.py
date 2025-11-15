@@ -49,7 +49,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [(os.getenv('REDIS_HOST'), os.getenv('REDIS_PORT'))],  # use Render's Redis URL
+            "hosts": [(os.getenv('edis-12358.crce194.ap-seast-1-1.ec2.cloud.redislabs.com'), os.getenv('12358'))],  # use Render's Redis URL
         },
     },
 }
