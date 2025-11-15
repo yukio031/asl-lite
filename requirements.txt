@@ -22,3 +22,6 @@ gTTS==2.5.4
 # --- Optional if you use Django ORM features / logging ---
 python-dateutil==2.9.0.post0
 typing_extensions==4.15.0
+
+gunicorn==20.1.0
+
