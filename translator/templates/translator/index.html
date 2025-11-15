@@ -159,8 +159,10 @@
   <script>
     // WebSocket setup
     const isLocal = window.location.hostname === 'localhost';  // Check if we're running locally
-    const socketUrl = isLocal ? 'ws://localhost:8000/ws/translate/' : 'wss://asl-lite-test.onrender.com/ws/translate/';
+    const socketUrl = 'wss://asl-lite-test.onrender.com/ws/translate/';
     const socket = new WebSocket(socketUrl);
+    //const socketUrl = isLocal ? 'ws://localhost:8000/ws/translate/' : 'wss://asl-lite-test.onrender.com/ws/translate/';
+    //onst socket = new WebSocket(socketUrl);
 
     // ASL Detection Logic and Button Actions
     // Same logic as you provided, just replace localhost with dynamic `socketUrl`
